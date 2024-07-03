@@ -1,4 +1,5 @@
 import openpyxl
+from datetime import timedelta
 
 
 all_list = [["https://us.gblnet.net/oper/?core_section=task&action=show&id="],
@@ -58,44 +59,56 @@ def read_one(row, t_o):
     comment = ''
     try:
         start_time = row[48]
-        start_time_d = start_time[0:2]
-        print(start_time_d)
-        start_time_m = start_time[3:5]
-        print(start_time_m)
+        print(f"start_time {start_time}")
+        print(type(start_time))
+        start_time_str = str(start_time)
+        print(type(start_time))
+        # print(f"start_time[8:10] {start_time[8:10]}")
+        start_time_d = start_time_str[8:10]
+        print(f"start_time_d = start_time[8:10] {start_time_d}")
+        start_time_m = start_time_str[-5:-3]
+        print(f"start_time_m = start_time[-5:-3] {start_time_m}")
 
         end_time = row[55]
-        end_time_d = end_time[0:2]
-        print(end_time_d)
-        end_time_m = end_time[3:5]
-        print(end_time_m)
+        print(f"end_time {end_time}")
+        end_time_str = str(end_time)
+        end_time_d = end_time_str[8:10]
+        print(f"end_time_d= end_time[8:10] {end_time_d}")
+        end_time_m = end_time_str[-5:-3]
+        print(f"end_time_m = end_time[-5:-3] {end_time_m}")
 
         str_address = str(row[49])  # Получаем строку из NoneType
         lst_address = list(str_address.split(","))  # Делаем из строки список
         new_lst_address = lst_address[2:]  # Убираем первые два элемента
         new_str_address = ''.join(new_lst_address)  # Обратно создаем строку из списка
 
-        if start_time[-2:] == "00":
-            if start_time_m == end_time_m and start_time_d > end_time_d:
-                print('start_time_m == end_time_m and start_time_d > end_time_d')
-                comment = "Подключили раньше"
-                counter_all += 1
-                counter_before += 1
-                all_list.append([t_o, row[47], row[48], row[55], comment])
-                # all_list.append([t_o, row[47], row[48], row[55], comment, new_str_address])
-            elif start_time_m > end_time_m:
+        print(f"Проверяем время")
+        if start_time_str[-5:-3] == "00":
+            # if start_time_m == end_time_m and start_time_d > end_time_d:
+            #     print('start_time_m == end_time_m and start_time_d > end_time_d')
+            #     comment = "Подключили раньше"
+            #     print(comment)
+            #     counter_all += 1
+            #     counter_before += 1
+            #     all_list.append([t_o, row[47], row[48], row[55], comment])
+            #     # all_list.append([t_o, row[47], row[48], row[55], comment, new_str_address])
+            if start_time - timedelta(hours=2) > end_time:
                 print("start_time_m > end_time_m")
                 comment = "Подключили раньше"
+                print(comment)
                 counter_all += 1
                 counter_before += 1
                 all_list.append([t_o, row[47], row[48], row[55], comment])
                 # all_list.append([t_o, row[47], row[48], row[55], comment, new_str_address])
-            elif start_time_m == end_time_m and start_time_d == end_time_d:
-                counter_all += 1
-                comment = " "
-                # all_list.append([t_o, row[47], row[48], row[55], comment])
-                # all_list.append([t_o, row[47], row[48], row[55], comment, new_str_address])
-            else:
+            # elif start_time_m == end_time_m and start_time_d == end_time_d:
+            #     counter_all += 1
+            #     comment = "Все норм?"
+            #     print(comment)
+            #     # all_list.append([t_o, row[47], row[48], row[55], comment])
+            #     # all_list.append([t_o, row[47], row[48], row[55], comment, new_str_address])
+            elif start_time + timedelta(hours=4) > end_time:
                 comment = "Подключили в более удобное время для клиента"
+                print(comment)
                 counter_all += 1
                 counter_after += 1
                 all_list.append([t_o, row[47], row[48], row[55], comment])
@@ -103,6 +116,7 @@ def read_one(row, t_o):
         else:
             # comment = " "
             comment = "Назначили сами"
+            print(comment)
             counter_all += 1
             counter_self += 1
 
@@ -113,7 +127,7 @@ def read_one(row, t_o):
         #     if start_time[-2:] == "00":
         #         comment = "Была назначена"
     except TypeError:
-        ...
+        print("Ошибка")
     print(f"ЛС {row[47]}")
     # print(f"Адрес {new_str_address}")
     print(f"Назначенная дата {row[48]}")
